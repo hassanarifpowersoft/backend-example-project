@@ -29,12 +29,12 @@ const userSchema = new Schema(
       type: String, // Cloudnary Url or AWS Url
       required: true,
     },
-    avatar: {
+    coverImage: {
       type: String, // Cloudnary Url or AWS Url
     },
     watchHistory: [
       {
-        type: Schema.type.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Video",
       },
     ],
@@ -51,14 +51,11 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.pre("save", async function (next) {
-  // if (!this.isModified("password")) next();
-  // this.password = bcrypt.hash(this.password, 10);
-  // next();
-  if (this.isModified("password")) {
-    this.password = bcrypt.hash(this.password, 10);
-    next();
-  }
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+
+  this.password = await bcrypt.hash(this.password, 10);
+  //next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
